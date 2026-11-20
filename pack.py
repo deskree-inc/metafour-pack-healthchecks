@@ -31,7 +31,7 @@ _ICON = "data:image/png;base64," + base64.b64encode(
 
 PACK = SourcePack(
     id="x-healthchecks",
-    version="0.1.0",
+    version="0.1.1",
     contract=3,                             # a literal, never PACK_CONTRACT_VERSION
     display_name="Healthchecks.io",
     description="Cron and heartbeat checks from Healthchecks.io, hosted or self-hosted.",
