@@ -3,8 +3,8 @@
 # it back anonymously and print the reference to add. A manual run can also test the pack against a
 # local, self-hosted Healthchecks instance (the live job).
 #
-# Every job installs only tetrix-pack-sdk[dev] from PyPI, at the major pyproject.toml pins. Until
-# tetrix-pack-sdk is published there, every job fails at pip install.
+# Every job installs only metafour-pack-sdk[dev] from PyPI, at the major pyproject.toml pins. Until
+# metafour-pack-sdk is published there, every job fails at pip install.
 name: pack
 
 on:
@@ -28,7 +28,7 @@ concurrency:
 
 jobs:
   check:
-    name: tetrix-pack check
+    name: metafour-pack check
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -38,7 +38,7 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -e '.[dev]'
-      - run: tetrix-pack check
+      - run: metafour-pack check
 
   pytest:
     name: pytest (replay and pack_e2e)
@@ -62,7 +62,7 @@ jobs:
           EOF
 
   build:
-    name: tetrix-pack build --locked (linux/amd64, linux/arm64)
+    name: metafour-pack build --locked (linux/amd64, linux/arm64)
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -74,13 +74,13 @@ jobs:
       - run: pip install -e '.[dev]'
       - name: Build twice; both builds give one digest
         run: |
-          first="$(tetrix-pack build --locked --platform linux/amd64 --platform linux/arm64)"
-          second="$(tetrix-pack build --locked --platform linux/amd64 --platform linux/arm64 --out "$RUNNER_TEMP/oci")"
+          first="$(metafour-pack build --locked --platform linux/amd64 --platform linux/arm64)"
+          second="$(metafour-pack build --locked --platform linux/amd64 --platform linux/arm64 --out "$RUNNER_TEMP/oci")"
           echo "index digest: $first"
           test "$first" = "$second"
 
   run-sync:
-    name: tetrix-pack run sync --cassette (Linux)
+    name: metafour-pack run sync --cassette (Linux)
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -92,9 +92,9 @@ jobs:
       - run: pip install -e '.[dev]'
       - name: Replay the collect cassette through the local runner
         env:
-          TETRIX_PACK_CRED_API_KEY: replay-key
+          METAFOUR_PACK_CRED_API_KEY: replay-key
         run: |
-          tetrix-pack run sync --config tests/config.json --cassette test_pack/test_collect | tee run.txt
+          metafour-pack run sync --config tests/config.json --cassette test_pack/test_collect | tee run.txt
           grep -qx 'sync: ok' run.txt
           grep -qx 'refused: none' run.txt
           grep -qx 'egress refused: none' run.txt
@@ -134,12 +134,12 @@ jobs:
           version: 1.4.0
       - name: The tag is pack.py's version, and the registry is set
         run: |
-          version="$(tetrix-pack manifest 2>/dev/null | python -c 'import json, sys; print(json.load(sys.stdin)["version"])')"
+          version="$(metafour-pack manifest 2>/dev/null | python -c 'import json, sys; print(json.load(sys.stdin)["version"])')"
           test "v$version" = "$GITHUB_REF_NAME" || { echo "::error::tag $GITHUB_REF_NAME is not v$version"; exit 1; }
           test -n "$PACK_REPOSITORY" || { echo "::error::set the PACK_REPOSITORY repository variable"; exit 1; }
       - name: Build
         id: build
-        run: echo "digest=$(tetrix-pack build --locked)" >> "$GITHUB_OUTPUT"
+        run: echo "digest=$(metafour-pack build --locked)" >> "$GITHUB_OUTPUT"
       - name: Push the layout as built
         env:
           # A registry other than ghcr.io reads PACK_REGISTRY_USERNAME and PACK_REGISTRY_PASSWORD.
@@ -153,4 +153,4 @@ jobs:
       - name: Read it back anonymously and print the reference to add
         env:
           DIGEST: ${{ steps.build.outputs.digest }}
-        run: tetrix-pack readback "$PACK_REPOSITORY@$DIGEST" | tee -a "$GITHUB_STEP_SUMMARY"
+        run: metafour-pack readback "$PACK_REPOSITORY@$DIGEST" | tee -a "$GITHUB_STEP_SUMMARY"

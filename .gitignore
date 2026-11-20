@@ -1,5 +1,5 @@
-# Written by tetrix-pack: the local run's environment and the built layout.
-.tetrix-pack/
+# Written by metafour-pack: the local run's environment and the built layout.
+.metafour-pack/
 dist/
 
 # The build ships every file under healthchecks/, and a stray one changes the digest.

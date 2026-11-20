@@ -1,22 +1,19 @@
 # Healthchecks.io pack for Metafour
 
-The reference outside pack for Metafour. It was started with `tetrix-pack new x-healthchecks`, and the
-first commit is that command's output, unedited. It reads the checks of one
-[Healthchecks.io](https://healthchecks.io) project and asks Metafour to link each check to the
-service it watches.
+The reference outside pack for Metafour. It was started with `metafour-pack new x-healthchecks`
+(then named `tetrix-pack new`), and the first commit is that command's output, unedited. It reads
+the checks of one [Healthchecks.io](https://healthchecks.io) project and asks Metafour to link each
+check to the service it watches.
 
 | | |
 |---|---|
 | Pack id | `x-healthchecks`, permanent: every kind and natural key embeds it |
-| SDK | `tetrix-pack-sdk` 1.x, which builds manifest contract 3 |
+| SDK | `metafour-pack-sdk` 1.x, which builds manifest contract 3 |
 | Source | Healthchecks.io Management API v3, hosted or self-hosted |
 | Kind | `ext:x-healthchecks:check`, layer `OBSERVABILITY` |
 | Join rule | `service_observed_by_check`: `service` `observed_by` check, `review=True` |
 | Egress | `healthchecks.io:443`, plus the host of the connection's instance URL |
 | Dependencies | none beyond the SDK; the payload is `py3-none-any` |
-
-The SDK, its `tetrix-pack` command and its `TETRIX_PACK_*` variables still carry the product's
-former name, Tetrix. They are the SDK's names, not this pack's, and change only with an SDK release.
 
 ## The source
 
@@ -95,17 +92,17 @@ at most 100 API requests a minute, and the pack paces itself at one request a se
 
 ## Development
 
-You need Python 3.12. `tetrix-pack run` and the `pack_e2e` test also need Linux, as the runner
+You need Python 3.12. `metafour-pack run` and the `pack_e2e` test also need Linux, as the runner
 does; elsewhere `pack_e2e` skips. CI runs everything on Linux.
 
 ```sh
 python3.12 -m venv .venv && . .venv/bin/activate
 pip install -e '.[dev]'      # the SDK, pytest and the pack's own dependencies (none)
-tetrix-pack check            # every problem Metafour or the kit finds, one line each
+metafour-pack check            # every problem Metafour or the kit finds, one line each
 pytest                       # replays the cassettes; pack_e2e runs on Linux only
-tetrix-pack build --locked   # the OCI layout in dist/oci; prints the digest to add
-TETRIX_PACK_CRED_API_KEY=replay-key \
-  tetrix-pack run sync --config tests/config.json --cassette test_pack/test_collect
+metafour-pack build --locked   # the OCI layout in dist/oci; prints the digest to add
+METAFOUR_PACK_CRED_API_KEY=replay-key \
+  metafour-pack run sync --config tests/config.json --cassette test_pack/test_collect
 ```
 
 When you change a credential or config field, run `UPDATE_GOLDEN=1 pytest` on Linux to rewrite
@@ -126,22 +123,22 @@ dev/record.sh live     # record into a scratch copy; fail if the instance answer
 ```
 
 Both need Docker. The script passes the instance's read-only key to `pytest --record` in
-`TETRIX_PACK_CRED_API_KEY`. The cassette harness drops the `X-Api-Key` header, and it refuses to
+`METAFOUR_PACK_CRED_API_KEY`. The cassette harness drops the `X-Api-Key` header, and it refuses to
 write a cassette that still holds the key. The keys exist only while the script runs.
 
 ## CI
 
-`.github/workflows/pack.yml` installs only `tetrix-pack-sdk[dev]` from PyPI, at the major
+`.github/workflows/pack.yml` installs only `metafour-pack-sdk[dev]` from PyPI, at the major
 `pyproject.toml` pins, and runs these jobs on Linux with Python 3.12:
 
 | Job | Runs |
 |---|---|
-| `tetrix-pack check` | the kit's checks, including the add-time verdict Metafour applies |
+| `metafour-pack check` | the kit's checks, including the add-time verdict Metafour applies |
 | `pytest` | the tests with the cassettes replayed, and `pack_e2e`, which must not skip |
-| `build` | `tetrix-pack build --locked` for `linux/amd64` and `linux/arm64`, twice, to one digest |
-| `run-sync` | `tetrix-pack run sync --cassette` through the local runner: no refused row, no egress refusal |
+| `build` | `metafour-pack build --locked` for `linux/amd64` and `linux/arm64`, twice, to one digest |
+| `run-sync` | `metafour-pack run sync --cassette` through the local runner: no refused row, no egress refusal |
 | `live` | manual only (`workflow_dispatch` with `live`): `dev/record.sh live` |
-| `publish` | on a tag `v<version>`: `oras cp --from-oci-layout`, then `tetrix-pack readback` |
+| `publish` | on a tag `v<version>`: `oras cp --from-oci-layout`, then `metafour-pack readback` |
 
 Every action is pinned by commit. Dependabot proposes updates to the actions, the SDK and the
 images in `dev/compose.yaml` weekly.
@@ -152,7 +149,7 @@ images in `dev/compose.yaml` weekly.
 2. Merge, then tag the commit `v<version>`.
 3. The `publish` job checks that the tag equals the version. It builds with `--locked`, pushes the
    layout with `oras cp --from-oci-layout` to `$PACK_REPOSITORY:<version>`, and reads it back with
-   `tetrix-pack readback`, which prints the reference to add. The job summary shows it.
+   `metafour-pack readback`, which prints the reference to add. The job summary shows it.
 
 Settings the publish job reads:
 

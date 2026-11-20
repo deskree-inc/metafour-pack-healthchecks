@@ -9,9 +9,9 @@
 # It starts dev/compose.yaml, seeds it with dev/seed.py (fresh keys every run), copies Caddy's root
 # certificate out, and runs pytest --record in a python:3.12 container on the compose network, where
 # https://healthchecks.test is the instance. The read-only key reaches pytest only as
-# TETRIX_PACK_CRED_API_KEY. The cassette harness drops X-Api-Key and refuses to write a key value.
+# METAFOUR_PACK_CRED_API_KEY. The cassette harness drops X-Api-Key and refuses to write a key value.
 #
-# The SDK comes from the index, as in CI: tetrix-pack-sdk[dev] from pyproject.toml. To install it
+# The SDK comes from the index, as in CI: metafour-pack-sdk[dev] from pyproject.toml. To install it
 # from local wheels instead, set PACK_SDK_WHEELS to a directory that holds them.
 set -euo pipefail
 
@@ -52,7 +52,7 @@ if [ -n "${PACK_SDK_WHEELS:-}" ]; then
 fi
 docker run --rm --network pack-healthchecks-dev_default \
   -v "$target:/pack" -v "$work/root.crt:/certs/root.crt:ro" ${wheels[@]+"${wheels[@]}"} \
-  -e SSL_CERT_FILE=/certs/root.crt -e TETRIX_PACK_CRED_API_KEY="$ro_key" -w /pack \
+  -e SSL_CERT_FILE=/certs/root.crt -e METAFOUR_PACK_CRED_API_KEY="$ro_key" -w /pack \
   "$python_image" \
   bash -c "pip install --quiet --disable-pip-version-check --root-user-action=ignore -e '.[dev]' &&
            python -m pytest -p no:cacheprovider --record -k 'not end_to_end' -q"

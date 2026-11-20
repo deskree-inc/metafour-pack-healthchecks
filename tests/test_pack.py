@@ -1,6 +1,6 @@
 """The pack's tests. They run offline: a request no cassette answers fails its test.
 
-- ``test_the_kit_finds_no_problem`` is ``tetrix-pack check`` as one assertion.
+- ``test_the_kit_finds_no_problem`` is ``metafour-pack check`` as one assertion.
 - The validate and collect tests run the pack's code in this process, against the cassettes
   ``tests/conftest.py`` describes.
 - ``test_end_to_end`` is ``pack_e2e``: the pack through every step the sandbox takes it, in a child

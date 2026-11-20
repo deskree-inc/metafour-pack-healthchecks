@@ -1,6 +1,6 @@
 """The Healthchecks.io options mapper: what the collector reads as ``ctx.source.options``.
 
-It forwards every config field, and ``tetrix-pack check`` fails when one is dropped. The API key is
+It forwards every config field, and ``metafour-pack check`` fails when one is dropped. The API key is
 added when the connection's secret resolves.
 """
 
