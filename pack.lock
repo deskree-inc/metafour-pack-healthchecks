@@ -1,0 +1,15 @@
+{
+  "lock_version": 1,
+  "python_requires": [],
+  "targets": [
+    {
+      "interpreter": "cp312",
+      "platform": "linux/amd64"
+    },
+    {
+      "interpreter": "cp312",
+      "platform": "linux/arm64"
+    }
+  ],
+  "wheels": []
+}

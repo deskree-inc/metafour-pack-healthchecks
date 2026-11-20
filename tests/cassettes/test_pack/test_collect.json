@@ -1,0 +1,59 @@
+{
+  "interactions": [
+    {
+      "request": {
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "headers": [],
+        "method": "GET",
+        "url": "https://api.healthchecks.example/v1/checks"
+      },
+      "response": {
+        "body": "{\"checks\": [{\"id\": \"chk-1\", \"name\": \"Checkout API\"}, {\"id\": \"chk-2\", \"name\": \"Search API\"}]}",
+        "headers": [
+          [
+            "content-type",
+            "application/json"
+          ]
+        ],
+        "status": 200
+      }
+    },
+    {
+      "request": {
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "headers": [],
+        "method": "GET",
+        "url": "https://api.healthchecks.example/v1/checks/chk-1"
+      },
+      "response": {
+        "body": "{\"id\": \"chk-1\", \"name\": \"Checkout API\", \"service\": \"checkout\", \"status\": \"up\", \"url\": \"https://checkout.internal.example/health\"}",
+        "headers": [
+          [
+            "content-type",
+            "application/json"
+          ]
+        ],
+        "status": 200
+      }
+    },
+    {
+      "request": {
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "headers": [],
+        "method": "GET",
+        "url": "https://api.healthchecks.example/v1/checks/chk-2"
+      },
+      "response": {
+        "body": "{\"id\": \"chk-2\", \"name\": \"Search API\", \"service\": \"search\", \"status\": \"down\", \"url\": \"https://search.internal.example/health\"}",
+        "headers": [
+          [
+            "content-type",
+            "application/json"
+          ]
+        ],
+        "status": 200
+      }
+    }
+  ],
+  "version": 1
+}

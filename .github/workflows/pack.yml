@@ -1,0 +1,64 @@
+# Check, test and build the pack on every push. On a tag v<version>, where <version> is pack.py's,
+# push the artifact to this repository's container registry, read it back anonymously and print
+# the reference to add.
+name: pack
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e '.[dev]'
+      - run: tetrix-pack check
+      - run: python -m pytest
+      - run: tetrix-pack build --locked
+      - name: tetrix-pack run sync, replaying the collect cassette
+        run: tetrix-pack run sync --cassette test_pack/test_collect
+        env:
+          TETRIX_PACK_CRED_TOKEN: replay-token
+
+  publish:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: test
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e '.[dev]'
+      - uses: oras-project/setup-oras@v1
+      - name: Build
+        id: build
+        run: echo "digest=$(tetrix-pack build --locked)" >> "$GITHUB_OUTPUT"
+      - name: Push the layout as built
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ACTOR: ${{ github.actor }}
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          repository="ghcr.io/${GITHUB_REPOSITORY,,}"
+          tag="${GITHUB_REF_NAME#v}"
+          echo "$TOKEN" | oras login ghcr.io --username "$ACTOR" --password-stdin
+          oras cp --from-oci-layout "dist/oci:$tag" "$repository:$tag"
+      # Read every byte back without a login, as an install does. If it fails with
+      # registry_auth_required, the package is not public: make it public, then re-run this job.
+      - name: Read it back anonymously and print the reference to add
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: tetrix-pack readback "ghcr.io/${GITHUB_REPOSITORY,,}@$DIGEST"

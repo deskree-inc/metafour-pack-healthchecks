@@ -1,0 +1,66 @@
+{
+  "x-healthchecks": {
+    "auth_modes": [],
+    "capabilities": [
+      "ext:x-healthchecks:check"
+    ],
+    "category": "Observability",
+    "config_fields": [],
+    "credential_fields": [
+      {
+        "description": "",
+        "help": "A read-only token for the account.",
+        "label": "API token",
+        "name": "token",
+        "placeholder": "",
+        "required": true,
+        "secret": true,
+        "type": "password"
+      }
+    ],
+    "description": "The uptime checks of one Healthchecks account, and the service each watches.",
+    "display_name": "Healthchecks",
+    "docs_url": null,
+    "icon": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAA6ElEQVR42u2b0Q2FMAwDOwTTvhFYGjZ4QmriOslZ6jf2CUGbpGshhJS6fvfzb40K+3WNDV4ORFZwexCq4HYgTgW3AOES/ggEt/BSCK7hJRDcw6dCqBI+BYLSmB2Ek0YsIDi8hsc8uH2J5X4c/8UyT867MYk39/14qr8qp7I0n6MBVDuTh/sFQMHSFAAAEOS5cmU2xDsAAAAAAAAAAIMBsBMEAAA4Do8HQE0QAJTFaYw4Q7DvDbZqju48tEV7fPfhLQYkooyUHZHJMMakGLOCTIsyL8zEOPcGuDnC3SFuj3UNvgNlIYSUegFBQvdh3PX9aQAAAABJRU5ErkJggg==",
+    "kinds": [
+      {
+        "kind": "ext:x-healthchecks:check",
+        "label": "Uptime check",
+        "layer": "OBSERVABILITY"
+      }
+    ],
+    "pickers": [],
+    "source_type": "x-healthchecks",
+    "triggers": [
+      {
+        "budget": "The template API's quota is not published: a run makes one list call and one call per check",
+        "cadence_rationale": "Checks and the services they watch change when someone edits the account, a few times a week; hourly keeps the graph current at a few dozen calls an hour for a typical account.",
+        "cursor_keys": [],
+        "default": true,
+        "default_interval_seconds": 3600,
+        "delta": "full",
+        "est_calls_per_run": null,
+        "events": [],
+        "kind": "schedule",
+        "min_interval_seconds": 900,
+        "quota_calls": null,
+        "quota_window_seconds": null
+      },
+      {
+        "budget": "",
+        "cadence_rationale": "",
+        "cursor_keys": [],
+        "default": false,
+        "default_interval_seconds": null,
+        "delta": "full",
+        "est_calls_per_run": null,
+        "events": [],
+        "kind": "manual",
+        "min_interval_seconds": 300,
+        "quota_calls": null,
+        "quota_window_seconds": null
+      }
+    ],
+    "webhook_registration": "none"
+  }
+}

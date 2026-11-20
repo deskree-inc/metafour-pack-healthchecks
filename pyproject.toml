@@ -1,0 +1,26 @@
+# The pack's development environment, not the artifact: `tetrix-pack build` makes that from pack.py.
+#
+# `pip install -e '.[dev]'` installs the SDK, pytest and the pack's own dependencies. Install them
+# wherever you check or build: `tetrix-pack check` imports each hook module.
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "x-healthchecks"
+version = "0.1.0"                 # the environment's; the pack's version is the one in pack.py
+requires-python = ">=3.12"
+# Keep equal to python_requires in pack.py (tetrix-pack check: deps:pyproject-drift). Leave out the
+# SDK, httpx and pydantic: the runner provides them.
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["tetrix-pack-sdk[dev]>=1.0.0,<2"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["healthchecks"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

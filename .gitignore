@@ -1,0 +1,16 @@
+# Written by tetrix-pack: the local run's environment and the built layout.
+.tetrix-pack/
+dist/
+
+# The build ships every file under healthchecks/, and a stray one changes the digest.
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+.pytest_cache/
+*.egg-info/
+build/
+.venv/
