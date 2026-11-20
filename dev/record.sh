@@ -51,7 +51,7 @@ if [ -n "${PACK_SDK_WHEELS:-}" ]; then
   wheels=(-v "$PACK_SDK_WHEELS:/wheels:ro" -e PIP_FIND_LINKS=/wheels)
 fi
 docker run --rm --network pack-healthchecks-dev_default \
-  -v "$target:/pack" -v "$work/root.crt:/certs/root.crt:ro" "${wheels[@]}" \
+  -v "$target:/pack" -v "$work/root.crt:/certs/root.crt:ro" ${wheels[@]+"${wheels[@]}"} \
   -e SSL_CERT_FILE=/certs/root.crt -e TETRIX_PACK_CRED_API_KEY="$ro_key" -w /pack \
   "$python_image" \
   bash -c "pip install --quiet --disable-pip-version-check --root-user-action=ignore -e '.[dev]' &&
