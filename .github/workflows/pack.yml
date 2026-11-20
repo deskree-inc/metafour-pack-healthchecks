@@ -1,6 +1,10 @@
-# Check, test and build the pack on every push. On a tag v<version>, where <version> is pack.py's,
-# push the artifact to this repository's container registry, read it back anonymously and print
-# the reference to add.
+# Check, test and build the pack on every push and pull request. On a tag v<version>, where
+# <version> is pack.py's, push the artifact to the registry the PACK_REPOSITORY variable names, read
+# it back anonymously and print the reference to add. A manual run can also test the pack against a
+# local, self-hosted Healthchecks instance (the live job).
+#
+# Every job installs only tetrix-pack-sdk[dev] from PyPI, at the major pyproject.toml pins. Until
+# tetrix-pack-sdk is published there, every job fails at pip install.
 name: pack
 
 on:
@@ -8,57 +12,145 @@ on:
   push:
     branches: [main]
     tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      live:
+        description: Also run the pack against a local Healthchecks instance (dev/record.sh live)
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
+concurrency:
+  group: pack-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
+
 jobs:
-  test:
+  check:
+    name: tetrix-pack check
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.12"
       - run: pip install -e '.[dev]'
       - run: tetrix-pack check
-      - run: python -m pytest
-      - run: tetrix-pack build --locked
-      - name: tetrix-pack run sync, replaying the collect cassette
-        run: tetrix-pack run sync --cassette test_pack/test_collect
-        env:
-          TETRIX_PACK_CRED_TOKEN: replay-token
 
-  publish:
-    if: startsWith(github.ref, 'refs/tags/v')
-    needs: test
+  pytest:
+    name: pytest (replay and pack_e2e)
     runs-on: ubuntu-24.04
-    permissions:
-      contents: read
-      packages: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.12"
       - run: pip install -e '.[dev]'
-      - uses: oras-project/setup-oras@v1
+      # On Linux with Python 3.12, pack_e2e runs, so a skip here is a failure.
+      - run: python -m pytest -rs --junitxml=report.xml
+      - name: pack_e2e ran
+        run: |
+          python - <<'EOF'
+          import xml.etree.ElementTree as ET
+          case = next(c for c in ET.parse("report.xml").iter("testcase") if c.get("name") == "test_end_to_end")
+          assert len(case) == 0, "test_end_to_end did not pass: " + ET.tostring(case, encoding="unicode")
+          EOF
+
+  build:
+    name: tetrix-pack build --locked (linux/amd64, linux/arm64)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      - run: pip install -e '.[dev]'
+      - name: Build twice; both builds give one digest
+        run: |
+          first="$(tetrix-pack build --locked --platform linux/amd64 --platform linux/arm64)"
+          second="$(tetrix-pack build --locked --platform linux/amd64 --platform linux/arm64 --out "$RUNNER_TEMP/oci")"
+          echo "index digest: $first"
+          test "$first" = "$second"
+
+  run-sync:
+    name: tetrix-pack run sync --cassette (Linux)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      - run: pip install -e '.[dev]'
+      - name: Replay the collect cassette through the local runner
+        env:
+          TETRIX_PACK_CRED_API_KEY: replay-key
+        run: |
+          tetrix-pack run sync --config tests/config.json --cassette test_pack/test_collect | tee run.txt
+          grep -qx 'sync: ok' run.txt
+          grep -qx 'refused: none' run.txt
+          grep -qx 'egress refused: none' run.txt
+
+  live:
+    name: against a local Healthchecks instance (manual)
+    if: github.event_name == 'workflow_dispatch' && inputs.live
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: dev/record.sh live
+
+  publish:
+    name: push with oras and read back
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [check, pytest, build, run-sync]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write   # used only when PACK_REPOSITORY is on ghcr.io
+    env:
+      # The repository to push to, without a tag: a repository variable, for example
+      # ghcr.io/<org>/tetrix-pack-healthchecks. Anyone must be able to pull it without logging in.
+      PACK_REPOSITORY: ${{ vars.PACK_REPOSITORY }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      - run: pip install -e '.[dev]'
+      - uses: oras-project/setup-oras@ac735097e22fe643015b0d19645f7c9a69942128 # v2.0.4
+        with:
+          version: 1.4.0
+      - name: The tag is pack.py's version, and the registry is set
+        run: |
+          version="$(tetrix-pack manifest 2>/dev/null | python -c 'import json, sys; print(json.load(sys.stdin)["version"])')"
+          test "v$version" = "$GITHUB_REF_NAME" || { echo "::error::tag $GITHUB_REF_NAME is not v$version"; exit 1; }
+          test -n "$PACK_REPOSITORY" || { echo "::error::set the PACK_REPOSITORY repository variable"; exit 1; }
       - name: Build
         id: build
         run: echo "digest=$(tetrix-pack build --locked)" >> "$GITHUB_OUTPUT"
       - name: Push the layout as built
         env:
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ACTOR: ${{ github.actor }}
-          DIGEST: ${{ steps.build.outputs.digest }}
+          # A registry other than ghcr.io reads PACK_REGISTRY_USERNAME and PACK_REGISTRY_PASSWORD.
+          USERNAME: ${{ secrets.PACK_REGISTRY_USERNAME || github.actor }}
+          PASSWORD: ${{ secrets.PACK_REGISTRY_PASSWORD || secrets.GITHUB_TOKEN }}
         run: |
-          repository="ghcr.io/${GITHUB_REPOSITORY,,}"
-          tag="${GITHUB_REF_NAME#v}"
-          echo "$TOKEN" | oras login ghcr.io --username "$ACTOR" --password-stdin
-          oras cp --from-oci-layout "dist/oci:$tag" "$repository:$tag"
+          echo "$PASSWORD" | oras login "${PACK_REPOSITORY%%/*}" --username "$USERNAME" --password-stdin
+          oras cp --from-oci-layout "dist/oci:${GITHUB_REF_NAME#v}" "$PACK_REPOSITORY:${GITHUB_REF_NAME#v}"
       # Read every byte back without a login, as an install does. If it fails with
       # registry_auth_required, the package is not public: make it public, then re-run this job.
       - name: Read it back anonymously and print the reference to add
         env:
           DIGEST: ${{ steps.build.outputs.digest }}
-        run: tetrix-pack readback "ghcr.io/${GITHUB_REPOSITORY,,}@$DIGEST"
+        run: tetrix-pack readback "$PACK_REPOSITORY@$DIGEST" | tee -a "$GITHUB_STEP_SUMMARY"

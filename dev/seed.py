@@ -18,9 +18,9 @@ from hc.accounts.models import Profile, Project
 from hc.api.models import Check
 
 UTC = dt.timezone.utc
-user = User.objects.create(username="k20-seed", email="seed@healthchecks.test")
+user = User.objects.create(username="seed", email="seed@healthchecks.test")
 Profile.objects.for_user(user)
-project = Project.objects.create(owner=user, name="Reference pack", badge_key="k20-seed")
+project = Project.objects.create(owner=user, name="Reference pack", badge_key="seed")
 keys = {"ro": project.set_api_key_readonly(), "rw": project.set_api_key()}
 project.save()
 

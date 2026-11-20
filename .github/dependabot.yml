@@ -1,0 +1,17 @@
+# Weekly dependency updates. The pack's only dependency is the SDK (pyproject.toml's dev extra,
+# pinned to its major); the runner provides httpx and pydantic. Actions are pinned by commit, and
+# the local instance's images in dev/compose.yaml by digest.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: weekly
+  - package-ecosystem: docker-compose
+    directory: /dev
+    schedule:
+      interval: weekly

@@ -7,7 +7,7 @@
 #   points SSL_CERT_FILE at it, so the pack's httpx client trusts it.
 #
 # Run it through dev/record.sh, which seeds the instance with dev/seed.py.
-name: k20-healthchecks
+name: pack-healthchecks-dev
 
 services:
   healthchecks:

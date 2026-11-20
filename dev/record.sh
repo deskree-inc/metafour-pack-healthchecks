@@ -20,7 +20,8 @@ case "$mode" in record|live) ;; *) echo "usage: dev/record.sh record|live" >&2; 
 root="$(cd "$(dirname "$0")/.." && pwd)"
 compose=(docker compose -f "$root/dev/compose.yaml")
 work="$(mktemp -d)"
-export HC_SECRET_KEY="$(openssl rand -hex 32)"
+HC_SECRET_KEY="$(openssl rand -hex 32)"
+export HC_SECRET_KEY
 # The runner's interpreter, pinned.
 python_image="python:3.12@sha256:5411fa1b302c43f510324381162b5f5d0d93b9ee2af538f09d944f0d290ee3cb"
 
@@ -35,6 +36,7 @@ for _ in $(seq 1 30); do
   "${compose[@]}" cp tls:/data/caddy/pki/authorities/local/root.crt "$work/root.crt" >/dev/null 2>&1 && break
   sleep 1
 done
+test -s "$work/root.crt" || { echo "dev/record.sh: no CA certificate from Caddy" >&2; exit 1; }
 
 if [ "$mode" = live ]; then
   mkdir "$work/pack"
@@ -48,7 +50,7 @@ wheels=()
 if [ -n "${PACK_SDK_WHEELS:-}" ]; then
   wheels=(-v "$PACK_SDK_WHEELS:/wheels:ro" -e PIP_FIND_LINKS=/wheels)
 fi
-docker run --rm --network k20-healthchecks_default \
+docker run --rm --network pack-healthchecks-dev_default \
   -v "$target:/pack" -v "$work/root.crt:/certs/root.crt:ro" "${wheels[@]}" \
   -e SSL_CERT_FILE=/certs/root.crt -e TETRIX_PACK_CRED_API_KEY="$ro_key" -w /pack \
   "$python_image" \
