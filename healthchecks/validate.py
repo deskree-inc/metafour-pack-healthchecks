@@ -1,6 +1,6 @@
 """The Healthchecks.io credential check: ``GET /api/v3/checks/`` with the key.
 
-200 is true and 401 or 403 is false. Any other answer raises ``ProbeUnavailable``, which tells Tetrix
+200 is true and 401 or 403 is false. Any other answer raises ``ProbeUnavailable``, which tells Metafour
 the source gave no verdict, so the key is not reported as wrong.
 """
 

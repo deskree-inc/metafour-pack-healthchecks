@@ -1,4 +1,4 @@
-"""The Healthchecks.io pack's manifest. Tetrix reads the data the build makes from it, never this file.
+"""The Healthchecks.io pack's manifest. Metafour reads the data the build makes from it, never this file.
 
 The pack id is permanent: every kind and natural key embeds it.
 """

@@ -119,7 +119,7 @@ jobs:
       packages: write   # used only when PACK_REPOSITORY is on ghcr.io
     env:
       # The repository to push to, without a tag: a repository variable, for example
-      # ghcr.io/<org>/tetrix-pack-healthchecks. Anyone must be able to pull it without logging in.
+      # ghcr.io/<org>/metafour-pack-healthchecks. Anyone must be able to pull it without logging in.
       PACK_REPOSITORY: ${{ vars.PACK_REPOSITORY }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

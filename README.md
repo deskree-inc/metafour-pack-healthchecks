@@ -1,8 +1,8 @@
-# Healthchecks.io pack for Tetrix
+# Healthchecks.io pack for Metafour
 
-The reference outside pack for Tetrix. It was started with `tetrix-pack new x-healthchecks`, and the
+The reference outside pack for Metafour. It was started with `tetrix-pack new x-healthchecks`, and the
 first commit is that command's output, unedited. It reads the checks of one
-[Healthchecks.io](https://healthchecks.io) project and asks Tetrix to link each check to the
+[Healthchecks.io](https://healthchecks.io) project and asks Metafour to link each check to the
 service it watches.
 
 | | |
@@ -15,12 +15,15 @@ service it watches.
 | Egress | `healthchecks.io:443`, plus the host of the connection's instance URL |
 | Dependencies | none beyond the SDK; the payload is `py3-none-any` |
 
+The SDK, its `tetrix-pack` command and its `TETRIX_PACK_*` variables still carry the product's
+former name, Tetrix. They are the SDK's names, not this pack's, and change only with an SDK release.
+
 ## The source
 
 [Healthchecks](https://github.com/healthchecks/healthchecks) monitors cron jobs and other
 background tasks: each job pings its check, and the check goes down when the pings stop. It is open
 source (BSD-3-Clause), runs self-hosted from the `healthchecks/healthchecks` image, and has a free
-hosted tier at healthchecks.io. It is not a built-in Tetrix source.
+hosted tier at healthchecks.io. It is not a built-in Metafour source.
 
 The pack calls one endpoint, `GET /api/v3/checks/`, with the project's API key in the `X-Api-Key`
 header.
@@ -52,7 +55,7 @@ The pack takes the service from the check's tags first, then from its slug:
    `service_from` is `slug`.
 3. **Neither.** The row has no `service`, and the rule has nothing to match.
 
-Tag your checks `service:<name>` with the name of the service in Tetrix when the slug is not that
+Tag your checks `service:<name>` with the name of the service in Metafour when the slug is not that
 name.
 
 ### The join rule
@@ -62,7 +65,7 @@ after `strip_lower`, as an `observed_by` edge from the service to the check. A p
 always candidates, never confirmed edges. `review=True` puts each one to an admin as a
 `declared_rule_candidate` question.
 
-## Adding it in Tetrix
+## Adding it in Metafour
 
 An admin adds the pack by the digest a release prints (see Publishing). Then they create a
 connection with:
@@ -79,9 +82,9 @@ The pack reaches `healthchecks.io` on port 443, which `egress` declares. `egress
 declares the Instance URL's host and port too, so a self-hosted instance is reachable as well, and
 nothing else is.
 
-A self-hosted instance must be reachable from Tetrix at a public address, over HTTPS, with a
+A self-hosted instance must be reachable from Metafour at a public address, over HTTPS, with a
 certificate from a public certificate authority. The pack runs in a sandbox that has no DNS of its
-own and reaches the internet only through Tetrix's egress proxy. The proxy resolves the host and, by default,
+own and reaches the internet only through Metafour's egress proxy. The proxy resolves the host and, by default,
 refuses private and loopback addresses. The sandbox trusts only public certificate authorities.
 
 ### Schedule and budget
@@ -98,7 +101,7 @@ does; elsewhere `pack_e2e` skips. CI runs everything on Linux.
 ```sh
 python3.12 -m venv .venv && . .venv/bin/activate
 pip install -e '.[dev]'      # the SDK, pytest and the pack's own dependencies (none)
-tetrix-pack check            # every problem Tetrix or the kit finds, one line each
+tetrix-pack check            # every problem Metafour or the kit finds, one line each
 pytest                       # replays the cassettes; pack_e2e runs on Linux only
 tetrix-pack build --locked   # the OCI layout in dist/oci; prints the digest to add
 TETRIX_PACK_CRED_API_KEY=replay-key \
@@ -133,7 +136,7 @@ write a cassette that still holds the key. The keys exist only while the script 
 
 | Job | Runs |
 |---|---|
-| `tetrix-pack check` | the kit's checks, including the add-time verdict Tetrix applies |
+| `tetrix-pack check` | the kit's checks, including the add-time verdict Metafour applies |
 | `pytest` | the tests with the cassettes replayed, and `pack_e2e`, which must not skip |
 | `build` | `tetrix-pack build --locked` for `linux/amd64` and `linux/arm64`, twice, to one digest |
 | `run-sync` | `tetrix-pack run sync --cassette` through the local runner: no refused row, no egress refusal |
@@ -155,7 +158,7 @@ Settings the publish job reads:
 
 | Name | Kind | What |
 |---|---|---|
-| `PACK_REPOSITORY` | repository variable | the repository to push to, without a tag, such as `ghcr.io/<org>/tetrix-pack-healthchecks` |
+| `PACK_REPOSITORY` | repository variable | the repository to push to, without a tag, such as `ghcr.io/<org>/metafour-pack-healthchecks` |
 | `PACK_REGISTRY_USERNAME`, `PACK_REGISTRY_PASSWORD` | secrets, optional | a login for a registry other than `ghcr.io`; without them the job logs in to `ghcr.io` with `GITHUB_TOKEN` |
 
 The repository must let anyone pull the artifact without logging in, for as long as an install
@@ -163,7 +166,7 @@ uses it. If `readback` fails with `registry_auth_required`, the package is not p
 public, then re-run the job.
 
 Add the digest `build` printed. Do not push with `crane push --index`: it pushes `index.json` as a
-wrapper index, whose digest Tetrix refuses as `not_a_pack`.
+wrapper index, whose digest Metafour refuses as `not_a_pack`.
 
 One commit builds to one digest when the build uses the same `SOURCE_DATE_EPOCH` (default 0) and
 no stray file sits under `healthchecks/`. CI builds from a clean checkout. The compressed bytes
@@ -187,7 +190,7 @@ The maintainers of this repository rebuild and release the pack. A release is a 
 - **Dependencies.** Dependabot opens a pull request each week, and the maintainers merge it when
   CI passes.
 
-## How Tetrix trusts this pack
+## How Metafour trusts this pack
 
 - An admin adds it by digest, as a sideloaded pack, after a warning.
 - Its code runs in a sandbox that reaches only its egress hosts, with no DNS and no secret but its

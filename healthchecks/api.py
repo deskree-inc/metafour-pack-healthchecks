@@ -64,7 +64,7 @@ def checks_url(options: dict[str, Any]) -> str:
 
 
 def client(usage: Any = None) -> RateLimitedClient:
-    """A client for one run or call. Pass the run's ``ctx.http_usage`` so Tetrix counts the calls."""
+    """A client for one run or call. Pass the run's ``ctx.http_usage`` so Metafour counts the calls."""
     return RateLimitedClient(budget=BUDGET, usage=usage)
 
 
