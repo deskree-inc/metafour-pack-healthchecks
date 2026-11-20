@@ -194,3 +194,7 @@ The maintainers of this repository rebuild and release the pack. A release is a 
   own connection's.
 - Its join rule's links are always candidates, never confirmed edges; `review=True` asks an admin
   about each.
+
+## License
+
+Apache License 2.0, the same as the SDK. See [LICENSE](LICENSE). Copy this pack as the start of your own.
