@@ -1,0 +1,75 @@
+{
+  "interactions": [
+    {
+      "request": {
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "headers": [],
+        "method": "GET",
+        "url": "https://healthchecks.test/api/v3/checks/"
+      },
+      "response": {
+        "body": "{\"error\": \"wrong api key\"}",
+        "headers": [
+          [
+            "access-control-allow-headers",
+            "X-Api-Key"
+          ],
+          [
+            "access-control-allow-methods",
+            "GET, OPTIONS, POST"
+          ],
+          [
+            "access-control-allow-origin",
+            "*"
+          ],
+          [
+            "access-control-max-age",
+            "600"
+          ],
+          [
+            "alt-svc",
+            "h3=\":443\"; ma=2592000"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "cross-origin-opener-policy",
+            "same-origin"
+          ],
+          [
+            "date",
+            "Fri, 20 Nov 2026 06:13:49 GMT"
+          ],
+          [
+            "referrer-policy",
+            "same-origin"
+          ],
+          [
+            "server",
+            "gunicorn"
+          ],
+          [
+            "vary",
+            "Cookie"
+          ],
+          [
+            "via",
+            "1.1 Caddy"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "x-frame-options",
+            "DENY"
+          ]
+        ],
+        "status": 401
+      }
+    }
+  ],
+  "version": 1
+}

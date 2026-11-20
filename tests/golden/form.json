@@ -5,27 +5,38 @@
       "ext:x-healthchecks:check"
     ],
     "category": "Observability",
-    "config_fields": [],
+    "config_fields": [
+      {
+        "default": "https://healthchecks.io",
+        "description": "",
+        "help": "Leave as is for the hosted service. For a self-hosted instance, its https URL.",
+        "label": "Instance URL",
+        "name": "api_base",
+        "options": [],
+        "required": false,
+        "type": "string"
+      }
+    ],
     "credential_fields": [
       {
         "description": "",
-        "help": "A read-only token for the account.",
-        "label": "API token",
-        "name": "token",
+        "help": "Project Settings, API Access Keys: create a read-only key. A read-write key works too, but the pack only reads.",
+        "label": "Read-only API key",
+        "name": "api_key",
         "placeholder": "",
         "required": true,
         "secret": true,
         "type": "password"
       }
     ],
-    "description": "The uptime checks of one Healthchecks account, and the service each watches.",
-    "display_name": "Healthchecks",
+    "description": "The checks of one Healthchecks.io project, and the service each watches.",
+    "display_name": "Healthchecks.io",
     "docs_url": null,
     "icon": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAA6ElEQVR42u2b0Q2FMAwDOwTTvhFYGjZ4QmriOslZ6jf2CUGbpGshhJS6fvfzb40K+3WNDV4ORFZwexCq4HYgTgW3AOES/ggEt/BSCK7hJRDcw6dCqBI+BYLSmB2Ek0YsIDi8hsc8uH2J5X4c/8UyT867MYk39/14qr8qp7I0n6MBVDuTh/sFQMHSFAAAEOS5cmU2xDsAAAAAAAAAAIMBsBMEAAA4Do8HQE0QAJTFaYw4Q7DvDbZqju48tEV7fPfhLQYkooyUHZHJMMakGLOCTIsyL8zEOPcGuDnC3SFuj3UNvgNlIYSUegFBQvdh3PX9aQAAAABJRU5ErkJggg==",
     "kinds": [
       {
         "kind": "ext:x-healthchecks:check",
-        "label": "Uptime check",
+        "label": "Healthchecks.io check",
         "layer": "OBSERVABILITY"
       }
     ],
@@ -33,18 +44,18 @@
     "source_type": "x-healthchecks",
     "triggers": [
       {
-        "budget": "The template API's quota is not published: a run makes one list call and one call per check",
-        "cadence_rationale": "Checks and the services they watch change when someone edits the account, a few times a week; hourly keeps the graph current at a few dozen calls an hour for a typical account.",
+        "budget": "Healthchecks.io asks for at most 100 API requests a minute (its API docs). A run makes two GET calls to /api/v3/checks/, one in discover and one in fetch, whatever the number of checks",
+        "cadence_rationale": "Checks, their tags and the services they watch change when someone edits the project, a few times a week; hourly keeps the graph current at two calls an hour.",
         "cursor_keys": [],
         "default": true,
         "default_interval_seconds": 3600,
         "delta": "full",
-        "est_calls_per_run": null,
+        "est_calls_per_run": 2,
         "events": [],
         "kind": "schedule",
         "min_interval_seconds": 900,
-        "quota_calls": null,
-        "quota_window_seconds": null
+        "quota_calls": 100,
+        "quota_window_seconds": 60
       },
       {
         "budget": "",

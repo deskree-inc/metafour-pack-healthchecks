@@ -1,0 +1,50 @@
+# A self-hosted Healthchecks instance served over TLS as https://healthchecks.test, for recording
+# the cassettes and for the manual live job. No Healthchecks.io account is involved.
+#
+# - healthchecks: the open-source server, on SQLite in /tmp, so every `up` starts empty.
+# - tls: Caddy with its internal CA, under the network alias healthchecks.test. `.test` is a reserved
+#   name that never resolves on the internet. dev/record.sh copies Caddy's root certificate out and
+#   points SSL_CERT_FILE at it, so the pack's httpx client trusts it.
+#
+# Run it through dev/record.sh, which seeds the instance with dev/seed.py.
+name: k20-healthchecks
+
+services:
+  healthchecks:
+    image: healthchecks/healthchecks:v5.0.3@sha256:5eb96eb72dc63ac24743f1c0fc4469931155329e05c9781a0809320de0ae479c
+    environment:
+      SECRET_KEY: ${HC_SECRET_KEY:?dev/record.sh sets it}
+      SITE_ROOT: https://healthchecks.test
+      ALLOWED_HOSTS: healthchecks.test,localhost
+      DB_NAME: /tmp/hc.sqlite
+      DEBUG: "False"
+      REGISTRATION_OPEN: "False"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v3/status/', timeout=2)"]
+      interval: 2s
+      retries: 60
+
+  tls:
+    image: caddy:2.10-alpine@sha256:4c6e91c6ed0e2fa03efd5b44747b625fec79bc9cd06ac5235a779726618e530d
+    command: ["caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
+    configs:
+      - source: caddyfile
+        target: /etc/caddy/Caddyfile
+    depends_on:
+      healthchecks:
+        condition: service_healthy
+    networks:
+      default:
+        aliases: [healthchecks.test]
+
+configs:
+  caddyfile:
+    content: |
+      {
+        skip_install_trust
+        admin off
+      }
+      healthchecks.test {
+        tls internal
+        reverse_proxy healthchecks:8000
+      }

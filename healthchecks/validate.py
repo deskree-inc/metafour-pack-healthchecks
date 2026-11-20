@@ -1,7 +1,7 @@
-"""The Healthchecks credential check: ``GET /v1/account``.
+"""The Healthchecks.io credential check: ``GET /api/v3/checks/`` with the key.
 
 200 is true and 401 or 403 is false. Any other answer raises ``ProbeUnavailable``, which tells Tetrix
-the source gave no verdict, so the credential is not reported as wrong.
+the source gave no verdict, so the key is not reported as wrong.
 """
 
 from __future__ import annotations
@@ -15,10 +15,10 @@ from healthchecks import api
 
 
 def validate(*, spec: SourceTypeSpec, credentials: dict[str, str], config: dict[str, Any]) -> bool:
-    del spec, config
-    response = api.client().get(f"{api.BASE_URL}/account", headers=api.headers(credentials["token"]))
+    del spec
+    response = api.client().get(api.checks_url(config), headers=api.headers(credentials["api_key"]))
     if response.status_code == 200:
         return True
     if response.status_code in (401, 403):
         return False
-    raise ProbeUnavailable(f"GET /v1/account answered {response.status_code}")
+    raise ProbeUnavailable(f"GET /api/v3/checks/ answered {response.status_code}")

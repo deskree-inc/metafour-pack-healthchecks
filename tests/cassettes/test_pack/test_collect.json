@@ -5,14 +5,66 @@
         "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "headers": [],
         "method": "GET",
-        "url": "https://api.healthchecks.example/v1/checks"
+        "url": "https://healthchecks.test/api/v3/checks/"
       },
       "response": {
-        "body": "{\"checks\": [{\"id\": \"chk-1\", \"name\": \"Checkout API\"}, {\"id\": \"chk-2\", \"name\": \"Search API\"}]}",
+        "body": "{\"checks\": [{\"name\": \"Checkout API\", \"slug\": \"checkout-api\", \"tags\": \"service:checkout prod\", \"desc\": \"\", \"grace\": 3600, \"n_pings\": 42, \"status\": \"up\", \"started\": false, \"last_ping\": \"2026-11-01T12:00:00+00:00\", \"next_ping\": \"2036-10-29T12:00:00+00:00\", \"manual_resume\": false, \"methods\": \"\", \"subject\": \"\", \"subject_fail\": \"\", \"start_kw\": \"\", \"success_kw\": \"\", \"failure_kw\": \"\", \"filter_subject\": false, \"filter_body\": false, \"filter_http_body\": false, \"filter_default_fail\": false, \"badge_url\": \"https://healthchecks.test/b/2/00000000-0000-0000-0000-000000000001.svg\", \"unique_key\": \"a79fe7aeb0042210f4c34d525f6050e67f0ba5ad\", \"timeout\": 315360000}, {\"name\": \"search\", \"slug\": \"search\", \"tags\": \"prod nightly\", \"desc\": \"\", \"grace\": 3600, \"n_pings\": 0, \"status\": \"new\", \"started\": false, \"last_ping\": null, \"next_ping\": null, \"manual_resume\": false, \"methods\": \"\", \"subject\": \"\", \"subject_fail\": \"\", \"start_kw\": \"\", \"success_kw\": \"\", \"failure_kw\": \"\", \"filter_subject\": false, \"filter_body\": false, \"filter_http_body\": false, \"filter_default_fail\": false, \"badge_url\": \"https://healthchecks.test/b/2/00000000-0000-0000-0000-000000000002.svg\", \"unique_key\": \"963f241eb49c27b55053d3eb877daac7e90a3a21\", \"schedule\": \"0 3 * * *\", \"tz\": \"UTC\"}, {\"name\": \"Nightly backup\", \"slug\": \"\", \"tags\": \"ops\", \"desc\": \"\", \"grace\": 3600, \"n_pings\": 0, \"status\": \"paused\", \"started\": false, \"last_ping\": null, \"next_ping\": null, \"manual_resume\": false, \"methods\": \"\", \"subject\": \"\", \"subject_fail\": \"\", \"start_kw\": \"\", \"success_kw\": \"\", \"failure_kw\": \"\", \"filter_subject\": false, \"filter_body\": false, \"filter_http_body\": false, \"filter_default_fail\": false, \"badge_url\": \"https://healthchecks.test/b/2/00000000-0000-0000-0000-000000000003.svg\", \"unique_key\": \"2fc8f7aacf013878eef265dbb10a60cc51fc814b\", \"timeout\": 86400}, {\"name\": \"Payments webhook\", \"slug\": \"payments-webhook\", \"tags\": \"service:payments service:ledger\", \"desc\": \"\", \"grace\": 3600, \"n_pings\": 7, \"status\": \"down\", \"started\": false, \"last_ping\": \"2026-01-01T00:00:00+00:00\", \"next_ping\": null, \"manual_resume\": false, \"methods\": \"\", \"subject\": \"\", \"subject_fail\": \"\", \"start_kw\": \"\", \"success_kw\": \"\", \"failure_kw\": \"\", \"filter_subject\": false, \"filter_body\": false, \"filter_http_body\": false, \"filter_default_fail\": false, \"badge_url\": \"https://healthchecks.test/b/2/00000000-0000-0000-0000-000000000004.svg\", \"unique_key\": \"b96656b7ee27c2c8142e1ed15bc35b8dbc803105\", \"timeout\": 86400}]}",
         "headers": [
+          [
+            "access-control-allow-headers",
+            "X-Api-Key"
+          ],
+          [
+            "access-control-allow-methods",
+            "GET, OPTIONS, POST"
+          ],
+          [
+            "access-control-allow-origin",
+            "*"
+          ],
+          [
+            "access-control-max-age",
+            "600"
+          ],
+          [
+            "alt-svc",
+            "h3=\":443\"; ma=2592000"
+          ],
           [
             "content-type",
             "application/json"
+          ],
+          [
+            "cross-origin-opener-policy",
+            "same-origin"
+          ],
+          [
+            "date",
+            "Fri, 20 Nov 2026 06:13:49 GMT"
+          ],
+          [
+            "referrer-policy",
+            "same-origin"
+          ],
+          [
+            "server",
+            "gunicorn"
+          ],
+          [
+            "vary",
+            "Accept-Encoding, Cookie"
+          ],
+          [
+            "via",
+            "1.1 Caddy"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "x-frame-options",
+            "DENY"
           ]
         ],
         "status": 200
@@ -23,32 +75,66 @@
         "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "headers": [],
         "method": "GET",
-        "url": "https://api.healthchecks.example/v1/checks/chk-1"
+        "url": "https://healthchecks.test/api/v3/checks/"
       },
       "response": {
-        "body": "{\"id\": \"chk-1\", \"name\": \"Checkout API\", \"service\": \"checkout\", \"status\": \"up\", \"url\": \"https://checkout.internal.example/health\"}",
+        "body": "{\"checks\": [{\"name\": \"Checkout API\", \"slug\": \"checkout-api\", \"tags\": \"service:checkout prod\", \"desc\": \"\", \"grace\": 3600, \"n_pings\": 42, \"status\": \"up\", \"started\": false, \"last_ping\": \"2026-11-01T12:00:00+00:00\", \"next_ping\": \"2036-10-29T12:00:00+00:00\", \"manual_resume\": false, \"methods\": \"\", \"subject\": \"\", \"subject_fail\": \"\", \"start_kw\": \"\", \"success_kw\": \"\", \"failure_kw\": \"\", \"filter_subject\": false, \"filter_body\": false, \"filter_http_body\": false, \"filter_default_fail\": false, \"badge_url\": \"https://healthchecks.test/b/2/00000000-0000-0000-0000-000000000001.svg\", \"unique_key\": \"a79fe7aeb0042210f4c34d525f6050e67f0ba5ad\", \"timeout\": 315360000}, {\"name\": \"search\", \"slug\": \"search\", \"tags\": \"prod nightly\", \"desc\": \"\", \"grace\": 3600, \"n_pings\": 0, \"status\": \"new\", \"started\": false, \"last_ping\": null, \"next_ping\": null, \"manual_resume\": false, \"methods\": \"\", \"subject\": \"\", \"subject_fail\": \"\", \"start_kw\": \"\", \"success_kw\": \"\", \"failure_kw\": \"\", \"filter_subject\": false, \"filter_body\": false, \"filter_http_body\": false, \"filter_default_fail\": false, \"badge_url\": \"https://healthchecks.test/b/2/00000000-0000-0000-0000-000000000002.svg\", \"unique_key\": \"963f241eb49c27b55053d3eb877daac7e90a3a21\", \"schedule\": \"0 3 * * *\", \"tz\": \"UTC\"}, {\"name\": \"Nightly backup\", \"slug\": \"\", \"tags\": \"ops\", \"desc\": \"\", \"grace\": 3600, \"n_pings\": 0, \"status\": \"paused\", \"started\": false, \"last_ping\": null, \"next_ping\": null, \"manual_resume\": false, \"methods\": \"\", \"subject\": \"\", \"subject_fail\": \"\", \"start_kw\": \"\", \"success_kw\": \"\", \"failure_kw\": \"\", \"filter_subject\": false, \"filter_body\": false, \"filter_http_body\": false, \"filter_default_fail\": false, \"badge_url\": \"https://healthchecks.test/b/2/00000000-0000-0000-0000-000000000003.svg\", \"unique_key\": \"2fc8f7aacf013878eef265dbb10a60cc51fc814b\", \"timeout\": 86400}, {\"name\": \"Payments webhook\", \"slug\": \"payments-webhook\", \"tags\": \"service:payments service:ledger\", \"desc\": \"\", \"grace\": 3600, \"n_pings\": 7, \"status\": \"down\", \"started\": false, \"last_ping\": \"2026-01-01T00:00:00+00:00\", \"next_ping\": null, \"manual_resume\": false, \"methods\": \"\", \"subject\": \"\", \"subject_fail\": \"\", \"start_kw\": \"\", \"success_kw\": \"\", \"failure_kw\": \"\", \"filter_subject\": false, \"filter_body\": false, \"filter_http_body\": false, \"filter_default_fail\": false, \"badge_url\": \"https://healthchecks.test/b/2/00000000-0000-0000-0000-000000000004.svg\", \"unique_key\": \"b96656b7ee27c2c8142e1ed15bc35b8dbc803105\", \"timeout\": 86400}]}",
         "headers": [
+          [
+            "access-control-allow-headers",
+            "X-Api-Key"
+          ],
+          [
+            "access-control-allow-methods",
+            "GET, OPTIONS, POST"
+          ],
+          [
+            "access-control-allow-origin",
+            "*"
+          ],
+          [
+            "access-control-max-age",
+            "600"
+          ],
+          [
+            "alt-svc",
+            "h3=\":443\"; ma=2592000"
+          ],
           [
             "content-type",
             "application/json"
-          ]
-        ],
-        "status": 200
-      }
-    },
-    {
-      "request": {
-        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-        "headers": [],
-        "method": "GET",
-        "url": "https://api.healthchecks.example/v1/checks/chk-2"
-      },
-      "response": {
-        "body": "{\"id\": \"chk-2\", \"name\": \"Search API\", \"service\": \"search\", \"status\": \"down\", \"url\": \"https://search.internal.example/health\"}",
-        "headers": [
+          ],
           [
-            "content-type",
-            "application/json"
+            "cross-origin-opener-policy",
+            "same-origin"
+          ],
+          [
+            "date",
+            "Fri, 20 Nov 2026 06:13:49 GMT"
+          ],
+          [
+            "referrer-policy",
+            "same-origin"
+          ],
+          [
+            "server",
+            "gunicorn"
+          ],
+          [
+            "vary",
+            "Accept-Encoding, Cookie"
+          ],
+          [
+            "via",
+            "1.1 Caddy"
+          ],
+          [
+            "x-content-type-options",
+            "nosniff"
+          ],
+          [
+            "x-frame-options",
+            "DENY"
           ]
         ],
         "status": 200
