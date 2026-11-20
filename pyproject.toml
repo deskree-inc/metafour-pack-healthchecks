@@ -11,12 +11,16 @@ build-backend = "hatchling.build"
 name = "x-healthchecks"
 version = "0.1.0"                 # the environment's; the pack's version is the one in pack.py
 requires-python = ">=3.12"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 # Keep equal to python_requires in pack.py (metafour-pack check: deps:pyproject-drift). Leave out the
 # SDK, httpx and pydantic: the runner provides them.
 dependencies = []
 
 [project.optional-dependencies]
-dev = ["metafour-pack-sdk[dev]>=1.0.0,<2"]
+# The SDK's first release is a candidate, which pip installs only when a pin names one. This becomes
+# >=1.0.0,<2 when 1.0.0 is out.
+dev = ["metafour-pack-sdk[dev]>=1.0.0rc1,<2"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["healthchecks"]
