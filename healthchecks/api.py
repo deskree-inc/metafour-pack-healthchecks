@@ -9,6 +9,7 @@ from __future__ import annotations
 import hashlib
 import uuid
 from typing import Any
+from urllib.parse import urlsplit
 
 from collector_sdk.http import RateBudget, RateLimitedClient
 
@@ -18,10 +19,48 @@ BUDGET = RateBudget(rate_per_sec=1, capacity=2)
 SERVICE_TAG = "service:"
 
 
+class InstanceURLRefused(ValueError):
+    """``api_base`` is not a bare ``https://host[:port]`` URL."""
+
+
+def instance_base(value: Any) -> str:
+    """``api_base`` rebuilt from its parsed scheme, host and port, the hosted service when empty.
+
+    The API key goes to this host, so only ``https://host[:port]`` with an optional trailing ``/``
+    passes: no other scheme, no user name or password, no path, query or fragment, no whitespace.
+    The runner's egress proxy reads the same field with the same parser and opens exactly that host
+    and port (``egress_from_config``), so the key cannot reach any other host. Whether the host's
+    address is public is the proxy's check, not the pack's.
+    """
+    text = DEFAULT_BASE if value is None or not str(value).strip() else str(value).strip()
+    if any(c.isspace() or not c.isprintable() for c in text):
+        raise InstanceURLRefused("api_base: holds whitespace or a control character")
+    parts = urlsplit(text)
+    if parts.scheme != "https":
+        raise InstanceURLRefused("api_base: must be an https:// URL")
+    if "@" in parts.netloc:
+        raise InstanceURLRefused("api_base: may not hold a user name or password")
+    if "?" in text:
+        raise InstanceURLRefused("api_base: may not hold a query")
+    if "#" in text:
+        raise InstanceURLRefused("api_base: may not hold a fragment")
+    if parts.path not in ("", "/"):
+        raise InstanceURLRefused("api_base: may not hold a path; give the instance's root URL")
+    try:
+        host, port = parts.hostname, parts.port
+    except ValueError as exc:
+        raise InstanceURLRefused("api_base: has an invalid port") from exc
+    if not host:
+        raise InstanceURLRefused("api_base: names no host")
+    if port == 0:
+        raise InstanceURLRefused("api_base: has an invalid port")
+    netloc = f"[{host}]" if ":" in host else host
+    return f"https://{netloc}" + (f":{port}" if port not in (None, 443) else "")
+
+
 def checks_url(options: dict[str, Any]) -> str:
-    """The checks list of the instance ``options["api_base"]`` names, the hosted one by default."""
-    base = str(options.get("api_base") or DEFAULT_BASE).strip().rstrip("/")
-    return f"{base}/api/v3/checks/"
+    """The checks list of the instance ``options["api_base"]`` names (:func:`instance_base`)."""
+    return f"{instance_base(options.get('api_base'))}/api/v3/checks/"
 
 
 def client(usage: Any = None) -> RateLimitedClient:
