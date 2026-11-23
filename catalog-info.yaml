@@ -1,0 +1,13 @@
+# A Backstage component, so a Metafour GitHub connection on this repository makes a `service`
+# named metafour-pack-healthchecks. A Healthchecks.io check tagged `service:metafour-pack-healthchecks`
+# then matches it through the pack's join rule, which proposes the link as a candidate for an admin
+# to confirm. The milestone proof uses this pair. The pack artifact does not include this file.
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: metafour-pack-healthchecks
+  title: Healthchecks.io pack for Metafour
+spec:
+  type: library
+  lifecycle: experimental
+  owner: deskree-inc
