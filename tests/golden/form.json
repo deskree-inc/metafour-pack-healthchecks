@@ -1,6 +1,8 @@
 {
   "x-healthchecks": {
-    "auth_modes": [],
+    "auth_modes": [
+      "api_key"
+    ],
     "capabilities": [
       "ext:x-healthchecks:check"
     ],

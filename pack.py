@@ -31,7 +31,7 @@ _ICON = "data:image/png;base64," + base64.b64encode(
 
 PACK = SourcePack(
     id="x-healthchecks",
-    version="0.1.2",
+    version="0.1.3",
     contract=3,                             # a literal, never PACK_CONTRACT_VERSION
     display_name="Healthchecks.io",
     description="Cron and heartbeat checks from Healthchecks.io, hosted or self-hosted.",
@@ -43,6 +43,9 @@ PACK = SourcePack(
         display_name="Healthchecks.io",
         description="The checks of one Healthchecks.io project, and the service each watches.",
         category="Observability",
+        # One way to authenticate: the API key below. Tetrix's Add data source list offers only a
+        # source type that declares at least one auth mode.
+        auth_modes=("api_key",),
         icon=_ICON,
         credential_fields=(CredentialField(
             "api_key", "Read-only API key", secret=True, required=True,

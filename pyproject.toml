@@ -9,7 +9,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "x-healthchecks"
-version = "0.1.2"                 # the environment's; the pack's version is the one in pack.py
+version = "0.1.3"                 # the environment's; the pack's version is the one in pack.py
 requires-python = ">=3.12"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
