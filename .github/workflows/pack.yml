@@ -3,8 +3,7 @@
 # it back anonymously and print the reference to add. A manual run can also test the pack against a
 # local, self-hosted Healthchecks instance (the live job).
 #
-# Every job installs only metafour-pack-sdk[dev] from PyPI, at the major pyproject.toml pins. Until
-# the SDK's release candidate 1.0.0rc2 is published there, every job fails at pip install.
+# Every job installs only metafour-pack-sdk[dev] from PyPI, at the major pyproject.toml pins.
 name: pack
 
 on:
