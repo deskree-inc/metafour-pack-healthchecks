@@ -9,7 +9,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "x-healthchecks"
-version = "0.1.1"                 # the environment's; the pack's version is the one in pack.py
+version = "0.1.2"                 # the environment's; the pack's version is the one in pack.py
 requires-python = ">=3.12"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
@@ -18,9 +18,8 @@ license-files = ["LICENSE"]
 dependencies = []
 
 [project.optional-dependencies]
-# The SDK's first release is a candidate, which pip installs only when a pin names one. This becomes
-# >=1.0.0,<2 when 1.0.0 is out.
-dev = ["metafour-pack-sdk[dev]>=1.0.0rc2,<2"]
+# Built on the SDK's first final release, 1.0.0, within its major.
+dev = ["metafour-pack-sdk[dev]>=1.0.0,<2"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["healthchecks"]
